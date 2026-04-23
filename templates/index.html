@@ -10,7 +10,12 @@
 </head>
 
 <body>
-    <div id="chatbox"></div>
+    <div class="chatbox-wrapper">
+        <div id="chatbox"></div>
+        <div id="cancelOverlay" class="cancel-overlay" style="display: none;">
+            <button id="cancelBtn" class="cancel-btn" onclick="cancelRequest()">요청취소 ✖</button>
+        </div>
+    </div>
     <div id="imagePreviewContainer" class="image-preview-container">
         <img id="imagePreview" src="">
         <button class="remove-image" onclick="clearImage()">×</button>

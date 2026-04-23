@@ -1,6 +1,13 @@
 let chatHistory = [];
 let selectedImageBase64 = null;
 let isSending = false;
+let currentAbortController = null;
+
+window.cancelRequest = function () {
+    if (currentAbortController) {
+        currentAbortController.abort();
+    }
+};
 
 window.addEventListener('DOMContentLoaded', (event) => {
     chatHistory = [];
@@ -77,8 +84,11 @@ async function send() {
     if (!input.value && !selectedImageBase64) return;
 
     isSending = true;
+    currentAbortController = new AbortController();
     const sendBtn = document.querySelector('.send-btn');
     if (sendBtn) sendBtn.disabled = true;
+    const cancelOverlay = document.getElementById('cancelOverlay');
+    if (cancelOverlay) cancelOverlay.style.display = 'flex';
 
     try {
         const userMsg = input.value;
@@ -111,7 +121,8 @@ async function send() {
         const response = await fetch('/ask', {
             method: 'POST',
             headers: { 'Content-Type': 'application/json' },
-            body: JSON.stringify(payload)
+            body: JSON.stringify(payload),
+            signal: currentAbortController.signal
         });
 
         chatbox.innerHTML += `<div class="msg bot" id="current-bot-msg"></div>`;
@@ -148,8 +159,20 @@ async function send() {
                 chatHistory.push({ "role": "assistant", "content": fullReply });
             } catch (e) { }
         }
+    } catch (e) {
+        if (e.name === 'AbortError') {
+            console.log('Request aborted by user');
+            chatbox.innerHTML += `<div class="msg bot" style="color: #ffaa00;"><em>요청이 취소되었습니다.</em></div>`;
+            chatbox.scrollTop = chatbox.scrollHeight;
+            chatHistory.pop(); // Remove the user message from history since the assistant didn't reply
+        } else {
+            console.error('Error in send():', e);
+        }
     } finally {
         isSending = false;
+        currentAbortController = null;
         if (sendBtn) sendBtn.disabled = false;
+        const cancelOverlay = document.getElementById('cancelOverlay');
+        if (cancelOverlay) cancelOverlay.style.display = 'none';
     }
 }
