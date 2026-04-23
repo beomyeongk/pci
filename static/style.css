@@ -206,10 +206,19 @@ button:hover {
     border: 1px solid rgba(255, 255, 255, 0.1);
 }
 
-.send-btn:hover {
+.send-btn:not(:disabled):hover {
     background: #006ae6;
     transform: scale(1.05);
     box-shadow: 0 4px 12px rgba(0, 0, 0, 0.4);
+}
+
+.send-btn:disabled {
+    background: #444;
+    color: #888;
+    cursor: not-allowed;
+    box-shadow: none;
+    transform: none;
+    border-color: rgba(255, 255, 255, 0.05);
 }
 
 .extra-controls {
