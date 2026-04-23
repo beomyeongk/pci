@@ -18,12 +18,12 @@
     <div class="input-area">
         <input type="file" id="imageInput" accept="image/*" style="display:none" onchange="previewImage(this)">
         <div class="extra-controls">
-            <button class="upload-btn" onclick="document.getElementById('imageInput').click()"
-                title="이미지 첨부">🖼️</button>
             <label class="reasoning-toggle" title="Toggle Reasoning (Thinking)">
                 <input type="checkbox" id="enableReasoning">
                 🤔
             </label>
+            <button class="upload-btn" onclick="document.getElementById('imageInput').click()" title="이미지 첨부">🖼️
+            </button>
         </div>
         <div class="textarea-wrapper">
             <textarea id="userInput" placeholder="메시지를 입력하세요...&#10;(Shift+Enter로 줄바꿈)" rows="1"></textarea>

@@ -71,7 +71,7 @@ def ask():
                             data_str = line[6:]
                             if data_str == '[DONE]':
                                 if is_thinking: # Close block if thinking when stream ends
-                                    yield "</div>\n\n"
+                                    yield "</span>\n\n"
                                 break
                             data = json.loads(data_str)
 
@@ -84,18 +84,18 @@ def ask():
                                     if not is_thinking:
                                         is_thinking = True
                                         # Apply style to distinguish thinking in UI
-                                        yield "\n\n> **Thinking:**\n> "
+                                        yield "\n\n<span style=\"font-size: 0.85em; color: #9e9e9e; line-height: 1.2; display: block;\">**Thinking:**<br>"
 
                                     reasoning_chunk = delta['reasoning']
                                     full_reasoning += reasoning_chunk
-                                    # Maintain blockquote (>) for new lines
-                                    yield reasoning_chunk.replace("\n", "\n> ")
+                                    # Replace \n with <br> to prevent markdown block parsing (like lists)
+                                    yield reasoning_chunk.replace("\n", "<br>")
 
                                 # 2. Handle actual Content
                                 if 'content' in delta:
                                     if is_thinking:
                                         is_thinking = False
-                                        yield "\n\n---\n\n" # Separator between thinking and content
+                                        yield "</span>\n\n---\n\n" # Separator between thinking and content
 
                                     if first_token_time is None:
                                         first_token_time = time.time()
@@ -109,13 +109,19 @@ def ask():
                             if usage:
                                 end_time = time.time()
                                 completion_tokens = usage.get('completion_tokens', 0)
+                                prompt_tokens = usage.get('prompt_tokens', 0)
+                                
+                                cached_tokens = 0
+                                prompt_details = usage.get('prompt_tokens_details')
+                                if prompt_details:
+                                    cached_tokens = prompt_details.get('cached_tokens', 0)
 
                                 if first_token_time is not None:
                                     ttft = first_token_time - start_time
                                     tg_time = end_time - first_token_time
                                     tg_speed = completion_tokens / tg_time if tg_time > 0 else 0
 
-                                    stats_msg = f"\n\n---\n<span style=\"font-size: 0.85em; color: #9e9e9e;\">**TTFT:** {ttft:.2f}s | **TG:** {tg_speed:.2f} tok/s</span>"
+                                    stats_msg = f"\n\n---\n<span style=\"font-size: 0.85em; color: #9e9e9e;\">**FT:** {ttft:.2f}s | **TG:** {tg_speed:.2f} t/s | ↑{prompt_tokens}↓{completion_tokens} ↻{cached_tokens} </span>"
                                     yield stats_msg
 
             # Pass pure content to frontend for history management
