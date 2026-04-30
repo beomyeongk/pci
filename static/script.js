@@ -105,13 +105,22 @@ async function send() {
         chatHistory.push({ "role": "user", "content": userMsg });
 
         // UI Display (include image if present)
-        let displayHTML = "";
+        const userMsgDiv = document.createElement('div');
+        userMsgDiv.className = 'msg user';
+        
         if (currentImage) {
-            displayHTML += `<img src="${currentImage}">`;
+            const img = document.createElement('img');
+            img.src = currentImage;
+            userMsgDiv.appendChild(img);
         }
-        displayHTML += userMsg;
-
-        chatbox.innerHTML += `<div class="msg user">${displayHTML}</div>`;
+        
+        if (userMsg) {
+            const textSpan = document.createElement('span');
+            textSpan.textContent = userMsg;
+            userMsgDiv.appendChild(textSpan);
+        }
+        
+        chatbox.appendChild(userMsgDiv);
 
         const payload = {
             messages: chatHistory,
@@ -131,9 +140,9 @@ async function send() {
             signal: currentAbortController.signal
         });
 
-        chatbox.innerHTML += `<div class="msg bot" id="current-bot-msg"></div>`;
-        const botMsgDiv = document.getElementById('current-bot-msg');
-        botMsgDiv.removeAttribute('id');
+        const botMsgDiv = document.createElement('div');
+        botMsgDiv.className = 'msg bot';
+        chatbox.appendChild(botMsgDiv);
 
         const reader = response.body.getReader();
         const decoder = new TextDecoder("utf-8");
@@ -168,7 +177,11 @@ async function send() {
     } catch (e) {
         if (e.name === 'AbortError') {
             console.log('Request aborted by user');
-            chatbox.innerHTML += `<div class="msg bot" style="color: #ffaa00;"><em>요청이 취소되었습니다.</em></div>`;
+            const abortMsgDiv = document.createElement('div');
+            abortMsgDiv.className = 'msg bot';
+            abortMsgDiv.style.color = '#ffaa00';
+            abortMsgDiv.innerHTML = '<em>요청이 취소되었습니다.</em>';
+            chatbox.appendChild(abortMsgDiv);
             chatbox.scrollTop = chatbox.scrollHeight;
             chatHistory.pop(); // Remove the user message from history since the assistant didn't reply
         } else {
