@@ -13,6 +13,12 @@ window.addEventListener('DOMContentLoaded', (event) => {
     chatHistory = [];
     console.log("Frontend Context Initialized");
 
+    const options = {
+        throwOnError: false,
+        displayMode: true
+    };
+    marked.use(markedKatex(options));
+
     const input = document.getElementById('userInput');
 
     // Image preview function
