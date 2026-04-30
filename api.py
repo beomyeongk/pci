@@ -2,11 +2,9 @@ from flask import Blueprint, request, Response, stream_with_context
 import requests
 import json
 import time
-from config import SYSTEM_PROMPT, MODEL_NAME, MAX_TOKENS, TEMPERATURE, TOP_P, TOP_K, THINKING_BUDGET, VISION_TOKEN_BUDGET
+from config import SYSTEM_PROMPT, MODEL_NAME, MAX_TOKENS, TEMPERATURE, TOP_P, TOP_K, THINKING_BUDGET, VISION_TOKEN_BUDGET, VLLM_URL
 
 api_bp = Blueprint('api', __name__)
-
-VLLM_URL = "http://localhost:8000/v1/chat/completions"
 
 @api_bp.route('/ask', methods=['POST'])
 def ask():
