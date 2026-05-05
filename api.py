@@ -124,7 +124,11 @@ def ask():
 
             # Pass pure content to frontend for history management
             yield f"__END_OF_TURN__{json.dumps(full_reply)}"
+        except requests.exceptions.RequestException as e:
+            print(f"Connection Error: {e}")
+            yield "__CONNECTION_ERROR__"
         except Exception as e:
-            yield f"\nError: {str(e)}"
+            print(f"Internal Server Error: {e}")
+            yield "__SERVER_ERROR__"
 
     return Response(stream_with_context(generate()), mimetype='text/plain')

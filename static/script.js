@@ -107,19 +107,19 @@ async function send() {
         // UI Display (include image if present)
         const userMsgDiv = document.createElement('div');
         userMsgDiv.className = 'msg user';
-        
+
         if (currentImage) {
             const img = document.createElement('img');
             img.src = currentImage;
             userMsgDiv.appendChild(img);
         }
-        
+
         if (userMsg) {
             const textSpan = document.createElement('span');
             textSpan.textContent = userMsg;
             userMsgDiv.appendChild(textSpan);
         }
-        
+
         chatbox.appendChild(userMsgDiv);
 
         const payload = {
@@ -156,6 +156,14 @@ async function send() {
             // Prevent tilde (~) markdown parsing issues by dynamically adding backslash (\) for escaping
             let safeText = accumulatedText.replace(/~/g, String.fromCharCode(92) + '~');
             let displayHTML = safeText;
+
+            // Handle connection/server error from server
+            if (safeText.includes("__CONNECTION_ERROR__") || safeText.includes("__SERVER_ERROR__")) {
+                botMsgDiv.innerHTML = safeText.includes("__CONNECTION_ERROR__") ? '<em>AI 서버가 미가동중입니다.</em>' : '<em>서버 내부 오류 발생</em>';
+                botMsgDiv.style.color = '#ffaa00';
+                chatHistory.pop(); // Remove the user message from history
+                break;
+            }
 
             // Hide hidden metadata from UI to maintain frontend UX
             if (safeText.includes("__END_OF_TURN__")) {
