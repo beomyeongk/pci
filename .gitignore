@@ -5,6 +5,11 @@ __pycache__/
 
 # Environments
 .env
+.env.*
+!.env.template
+.system_prompt
+.system_prompt.*
+!.system_prompt.template
 .venv
 env/
 venv/

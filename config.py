@@ -1,10 +1,20 @@
 import os
 from dotenv import load_dotenv
+from datetime import datetime
+from zoneinfo import ZoneInfo
+from string import Template
 
-# .env 파일 로드
+current_dttm = datetime.now(ZoneInfo("Asia/Seoul")).strftime("%Y-%m-%dT%H:%M")
+
+# Load .env
 load_dotenv()
 
-SYSTEM_PROMPT = os.getenv("SYSTEM_PROMPT", "당신은 AI 어시스턴트입니다.")
+# Load system prompt
+with open('.system_prompt', 'r', encoding='utf-8') as f:
+    prompt = f.read()
+
+SYSTEM_PROMPT = Template(prompt).substitute(current_dttm=current_dttm)
+
 MODEL_NAME = os.getenv("MODEL_NAME", "/data/model/gemma-4-31B-it")
 MAX_TOKENS = int(os.getenv("MAX_TOKENS", "3600"))
 TEMPERATURE = float(os.getenv("TEMPERATURE", "1.1"))

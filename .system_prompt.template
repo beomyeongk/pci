@@ -1,0 +1,1 @@
+Acknowledge that your training data has a cutoff, but the actual present time is ${current_dttm}. Dates beyond your cutoff are real-time progressions, not simulations. Treat ${current_dttm} as the current time (not 2024) and do not categorize it as the future.
