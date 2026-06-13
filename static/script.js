@@ -153,24 +153,26 @@ async function send() {
 
             accumulatedText += decoder.decode(value, { stream: true });
 
-            // Prevent tilde (~) markdown parsing issues by dynamically adding backslash (\) for escaping
-            let safeText = accumulatedText.replace(/~/g, String.fromCharCode(92) + '~');
-            let displayHTML = safeText;
-
-            // Handle connection/server error from server
-            if (safeText.includes("__CONNECTION_ERROR__") || safeText.includes("__SERVER_ERROR__")) {
-                botMsgDiv.innerHTML = safeText.includes("__CONNECTION_ERROR__") ? '<em>AI 서버가 미가동중입니다.</em>' : '<em>서버 내부 오류 발생</em>';
+            // 1. Handle connection/server error
+            if (accumulatedText.includes("__CONNECTION_ERROR__") || accumulatedText.includes("__SERVER_ERROR__")) {
+                botMsgDiv.innerHTML = accumulatedText.includes("__CONNECTION_ERROR__") ? '<em>AI 서버가 미가동중입니다.</em>' : '<em>서버 내부 오류 발생</em>';
                 botMsgDiv.style.color = '#ffaa00';
                 chatHistory.pop(); // Remove the user message from history
                 break;
             }
 
-            // Hide hidden metadata from UI to maintain frontend UX
-            if (safeText.includes("__END_OF_TURN__")) {
-                displayHTML = safeText.split("__END_OF_TURN__")[0];
+            // 2. Filter out hidden metadata for UI rendering
+            let displayText = accumulatedText;
+            if (accumulatedText.includes("__END_OF_TURN__")) {
+                displayText = accumulatedText.split("__END_OF_TURN__")[0];
             }
 
-            botMsgDiv.innerHTML = marked.parse(displayHTML);
+            // 3. Escape tildes only outside code blocks / inline code to prevent markdown parsing issues
+            displayText = displayText.replace(/(```[\s\S]*?(?:```|$)|`[^`]*(?:`|$))|~/g, (match, code) => {
+                return code ? code : '\\~';
+            });
+
+            botMsgDiv.innerHTML = marked.parse(displayText);
             chatbox.scrollTop = chatbox.scrollHeight;
         }
 
