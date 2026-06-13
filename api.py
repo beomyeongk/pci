@@ -126,10 +126,25 @@ def ask():
         # Pass pure content to frontend for history management
         yield f"__END_OF_TURN__{json.dumps(full_reply)}"
 
+    def _batch_stream(stream_gen, max_chars=20, max_delay=0.6):
+        buffer = ""
+        last_yield_time = time.time()
+        
+        for chunk in stream_gen:
+            buffer += chunk
+            current_time = time.time()
+            if len(buffer) >= max_chars or (current_time - last_yield_time) >= max_delay:
+                yield buffer
+                buffer = ""
+                last_yield_time = current_time
+                
+        if buffer:
+            yield buffer
+
     def generate():
         try:
             with requests.post(VLLM_URL, json=payload, stream=True) as res:
-                yield from _parse_stream(res.iter_lines())
+                yield from _batch_stream(_parse_stream(res.iter_lines()))
         except requests.exceptions.RequestException as e:
             print(f"Connection Error: {e}")
             yield "__CONNECTION_ERROR__"
